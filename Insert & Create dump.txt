@@ -1,0 +1,200 @@
+DROP TABLE IF EXISTS Amenities;
+DROP TABLE IF EXISTS Membership;
+DROP TABLE IF EXISTS Staff;
+DROP TABLE IF EXISTS Service;
+DROP TABLE IF EXISTS Promotion;
+DROP TABLE IF EXISTS Seating;
+DROP TABLE IF EXISTS Payment;
+DROP TABLE IF EXISTS Booking;
+DROP TABLE IF EXISTS VIPBoxes;
+DROP TABLE IF EXISTS Customer;
+
+
+CREATE TABLE Membership (
+    MembershipID INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerID INT,
+    MembershipType VARCHAR(50),
+    StartDate DATE,
+    EndDate DATE,
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+);
+
+CREATE TABLE Payment (
+    PaymentID INT PRIMARY KEY AUTO_INCREMENT,
+    BookingID INT,
+    Amount DECIMAL(10, 2),
+    PaymentMethod VARCHAR(50),
+    PaymentDate DATE,
+    FOREIGN KEY (BookingID) REFERENCES Booking(BookingID)
+);
+
+CREATE TABLE Promotion (
+    PromotionID INT PRIMARY KEY AUTO_INCREMENT,
+    Description TEXT,
+    StartDate DATE,
+    EndDate DATE,
+    Discount DECIMAL(5, 2)
+);
+
+CREATE TABLE Customer (
+    CustomerID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255),
+    Address VARCHAR(255),
+    Email VARCHAR(255),
+    PhoneNo VARCHAR(15)
+);
+
+CREATE TABLE Amenities (
+    AmenityID INT PRIMARY KEY AUTO_INCREMENT,
+    VIPBoxID INT,
+    AmenityName VARCHAR(50),
+    Description TEXT,
+    FOREIGN KEY (VIPBoxID) REFERENCES VIPBoxes(VIPBoxID)
+);
+
+CREATE TABLE Staff (
+    StaffID INT PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(255),
+    Role VARCHAR(50),
+    Contact VARCHAR(50)
+);	
+
+CREATE TABLE VIPBoxes (
+    VIPBoxID INT PRIMARY KEY AUTO_INCREMENT,
+    Location VARCHAR(50),
+    Capacity VARCHAR(10),
+    Price DECIMAL(10, 2),
+    StaffID INT,
+    FOREIGN KEY (StaffID) REFERENCES Staff(StaffID)
+);
+
+
+CREATE TABLE Booking (
+    BookingID INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerID INT,
+    VIPBoxID INT,
+    BookingDate DATE,
+    EventDate DATE,
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID),
+    FOREIGN KEY (VIPBoxID) REFERENCES VIPBoxes(VIPBoxID)
+);
+
+CREATE TABLE Service (
+    ServiceID INT PRIMARY KEY,
+    Description VARCHAR(255),
+    ServiceType VARCHAR(50),
+    StaffID INT,
+    FOREIGN KEY (StaffID) REFERENCES Staff(StaffID) 
+);
+
+
+
+CREATE TABLE Seating (
+    SeatingID INT PRIMARY KEY AUTO_INCREMENT,
+    BookingID INT,
+    SeatNumber VARCHAR(10),
+    Section VARCHAR(10),
+    FOREIGN KEY (BookingID) REFERENCES Booking(BookingID)
+);
+
+
+
+
+-- Insert data into Customer table
+INSERT INTO Customer (CustomerID, Name, Address, Email, PhoneNo)
+VALUES 
+(1, 'Tom Hardy', '123 Manchester Street', 'tom@example.com', '1234567890'),
+(2, 'Brad Pitt', '12 Old Trafford', 'brad@example.com', '0987654371'),
+(3, 'John Cena', '6 Trafford Centre', 'john@example.com', '0987656321'),
+(4, 'Johnny Depp', '896 Old Trafford', 'depp@example.com', '0987254321'),
+(5, 'Cillian Murphy', '26 Piccadilly', 'cillian@example.com', '0998654321');
+
+
+-- Insert data into VIPBoxes table
+INSERT INTO VIPBoxes (VIPBoxID, Location, Capacity, Price, StaffID)
+VALUES
+(100, 'East Boxes', '8', 1500.00, 101),
+(200, 'Red Café', '15', 2000.00, 102),
+(300, 'No.7 at Old Trafford', '20', 2000.00, 102),
+(400, 'Trinity Club', '15', 2000.00, 102),
+(500, '1999 Suite', '15', 2000.00, 102);
+
+
+-- Insert data into Booking table
+INSERT INTO Booking (BookingID, CustomerID, VIPBoxID, BookingDate, EventDate)
+VALUES
+(1, 1, 100, '2024-01-01', '2024-01-15'),
+(2, 2, 200, '2024-01-05', '2024-01-20'),
+(3, 3, 300, '2024-06-06', '2024-06-07'),
+(4, 4, 400, '2024-11-22', '2024-11-23'),
+(5, 5, 500, '2024-11-04', '2024-11-05');
+
+-- Insert data into Payment table
+INSERT INTO Payment (PaymentID, BookingID, Amount, PaymentMethod, PaymentDate)
+VALUES
+(1, 1, 1500.00, 'Credit Card', '2024-01-01'),
+(2, 2, 2000.00, 'PayPal', '2024-01-05'),
+(3, 3, 2000.00, 'Cash', '2024-06-06'),
+(4, 4, 2000.00, 'PayPal', '2024-06-06'),
+(5, 5, 2000.00, 'PayPal', '2024-08-06');
+
+
+-- Insert data into Seating table
+INSERT INTO Seating (SeatingID, BookingID, SeatNumber, Section)
+VALUES
+(1, 1, 'A1', 'VIP North'),
+(2, 2, 'B2', 'VIP East'),
+(3, 3, 'W2', 'VIP West'),
+(4, 4, 'S2', 'VIP South'),
+(5, 5, 'E2', 'VIP East');
+
+
+-- Insert data into Promotion table
+INSERT INTO Promotion (PromotionID, Description, StartDate, EndDate, Discount)
+VALUES
+(1, 'Winter Sale - 10% off', '2024-01-01', '2024-07-31', 10.00),
+(2, 'Summer Special - 15% off', '2024-06-01', '2024-06-30', 15.00),
+(3, 'Summer Special - 20% off', '2024-06-01', '2024-06-30', 20.00),
+(4, 'New year Special - 15% off', '2024-06-01', '2025-06-30', 15.00),
+(5, 'Christmas Special - 15% off', '2024-06-01', '2024-12-30', 15.00),
+
+
+-- Insert data into Staff table
+INSERT INTO Staff (StaffID, Name, Role, Contact)
+VALUES
+(101, 'Alice Smith', 'Manager', '1112223333'),
+(102, 'Chris Brown', 'Coordinator', '4435556666'),
+(103, 'Tim Allen', 'Member', '4995556666'),
+(104, 'Bob Chopper', 'Member', '4765556666'),
+(105, 'Preethi Murugan', 'Member', '4115556666');
+
+
+-- Insert data into Membership table
+INSERT INTO Membership (MembershipID, CustomerID, MembershipType, StartDate, EndDate)
+VALUES
+(1, 1, 'Platinum', '2024-01-01', '2025-09-01'),
+(2, 2, 'Gold', '2024-02-01', '2025-09-01'),
+(3, 3, 'Silver', '2024-02-01', '2025-06-01'),
+(4, 4, 'Gold', '2024-02-01', '2025-09-01'),
+(5, 5, 'Gold', '2024-02-01', '2025-09-01');
+
+
+-- Insert data into Amenities table
+INSERT INTO Amenities (AmenityID, VIPBoxID, AmenityName, Description)
+VALUES
+(11, 100, 'Private Bar', 'Fully stocked private bar'),
+(22, 200, 'Premium Sound System', 'High-end sound system for events'),
+(33, 300, 'HD view of Ground', 'View is very defined'),
+(44, 400, 'Treat Treat', 'Snacks are provided'),
+(55, 500, 'Gift', 'Little gifts are provided');
+
+
+-- Insert data into Service table
+INSERT INTO Service (ServiceID, Description, ServiceType, StaffID)
+VALUES
+(1, 'Catering', 'Food Service', 101),
+(2, 'Cleaning', 'Maintenance', 102),
+(3, 'Bar', 'Drinks', 103),
+(4, 'Catering', 'Food Service', 104),
+(5, 'Catering', 'Food Service', 105);
+
