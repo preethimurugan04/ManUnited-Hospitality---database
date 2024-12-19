@@ -1,0 +1,90 @@
+-- 1. Simple queries to view the tables 
+SELECT * FROM `vipboxes`
+SELECT * FROM `staff`
+SELECT * FROM `service`
+SELECT * FROM `seating`
+SELECT * FROM `promotion`
+SELECT * FROM `payment`
+SELECT * FROM `membership`
+SELECT * FROM `customer`
+SELECT * FROM `booking`
+SELECT * FROM `amenities`
+
+
+-- 2. Selecting Specific Columns
+SELECT Location, Price FROM VIPBoxes;
+
+
+-- 3. Find all VIP Boxes with a price less than $2000:
+
+SELECT * FROM VIPBoxes WHERE Price < 2000;
+
+-- 4. Retrieve all VIP Boxes with the word "Club" in their location
+SELECT Location, Price FROM VIPBoxes WHERE Location LIKE '%Club%';
+
+
+-- 5. Get the details of bookings, including the customer names and VIP Box locations:
+SELECT Booking.BookingID, Customer.Name, VIPBoxes.Location, Booking.BookingDate FROM Booking INNER JOIN Customer ON Booking.CustomerID = Customer.CustomerID
+INNER JOIN VIPBoxes ON Booking.VIPBoxID = VIPBoxes.VIPBoxID;
+
+-- 6. A detailed report of payments for each booking, including customer information
+SELECT Payment.PaymentID, Customer.Name, VIPBoxes.Location, Payment.Amount, Payment.PaymentDate FROM Payment INNER JOIN Booking ON Payment.BookingID = Booking.BookingID
+INNER JOIN Customer ON Booking.CustomerID = Customer.CustomerID
+INNER JOIN VIPBoxes ON Booking.VIPBoxID = VIPBoxes.VIPBoxID;
+
+-- 7. Retrieve the VIP Boxes that are available on a specific date, assuming availability is not explicitly stored in a table but inferred from bookings
+
+SELECT VIPBoxes.Location
+FROM VIPBoxes
+WHERE VIPBoxID NOT IN (
+    SELECT VIPBoxID
+    FROM Booking
+    WHERE EventDate = '2024-12-25'
+);
+
+-- 8. This query helps extract information on which VIP box generates the most revenue, which can then be analyzed to derive knowledge about customer preferences and optimal pricing strategies.
+
+SELECT VIPBoxes.Location, SUM(Payment.Amount) AS Revenue
+FROM VIPBoxes
+JOIN Booking ON VIPBoxes.VIPBoxID = Booking.VIPBoxID
+JOIN Payment ON Booking.BookingID = Payment.BookingID
+GROUP BY VIPBoxes.VIPBoxID
+ORDER BY Revenue DESC;
+
+-- 9. This query helps analyze bookings by month or year, allowing businesses to track trends and demand fluctuations.
+
+SELECT YEAR(BookingDate) AS Year, MONTH(BookingDate) AS Month, COUNT(*) AS TotalBookings FROM Booking GROUP BY YEAR(BookingDate), MONTH(BookingDate) ORDER BY Year DESC, Month DESC;
+
+-- 10. Analyzes the relationship between booking dates and payment amounts, helping understand customer spending patterns and peak revenue periods
+
+SELECT YEAR(BookingDate) AS Year, MONTH(BookingDate) AS Month, SUM(Payment.Amount) AS TotalRevenue, COUNT(Booking.BookingID) AS TotalBookings FROM Booking JOIN Payment ON Booking.BookingID = Payment.BookingID GROUP BY YEAR(BookingDate), MONTH(BookingDate) ORDER BY Year DESC, Month DESC;
+
+-- 11. To derive knowledge about customer preferences and optimal pricing strategies.
+
+SELECT VIPBoxes.Location, SUM(Payment.Amount) AS Revenue FROM VIPBoxes JOIN Booking ON VIPBoxes.VIPBoxID = Booking.VIPBoxID JOIN Payment ON Booking.BookingID = Payment.BookingID GROUP BY VIPBoxes.VIPBoxID ORDER BY Revenue DESC;
+
+-- 12. Finds staff members who are not currently assigned to manage any VIP boxes.
+
+SELECT Staff.StaffID, Staff.Name FROM Staff LEFT JOIN VIPBoxes ON Staff.StaffID = VIPBoxes.StaffID WHERE VIPBoxes.StaffID IS NULL;
+
+-- 13. Staff Contact List for Emergency Coordination
+
+SELECT Name, Role, Contact FROM Staff WHERE Role IN ('Manager');
+
+-- 14. Displays the active promotions, which could be useful for marketing and sales teams.
+
+SELECT PromotionID, Description, StartDate, EndDate, Discount FROM Promotion WHERE CURDATE() BETWEEN StartDate AND EndDate;
+
+-- 15. Provides a list of members who have booked VIP boxes, combining membership data with booking history.
+
+SELECT Customer.Name, Membership.MembershipType, VIPBoxes.VIPBoxID, VIPBoxes.Location FROM Membership JOIN Customer ON Membership.CustomerID = Customer.CustomerID JOIN Booking ON Customer.CustomerID = Booking.CustomerID JOIN VIPBoxes ON Booking.VIPBoxID = VIPBoxes.VIPBoxID;
+
+-- 16. Shows how many seats are booked and available for a given event.
+
+SELECT COUNT(Seating.SeatingID) AS OccupiedSeats, (SELECT COUNT(*) FROM Seating) - COUNT(Seating.SeatingID) AS AvailableSeats FROM Seating JOIN Booking ON Seating.BookingID = Booking.BookingID WHERE Booking.EventDate = '2024-12-25';
+
+-- 17. Provides a breakdown of total payments by payment method
+
+SELECT PaymentMethod, SUM(CASE WHEN PaymentMethod = 'Credit Card' THEN Amount ELSE 0 END) AS CreditCardPayments, SUM(CASE WHEN PaymentMethod = 'Cash' THEN Amount ELSE 0 END) AS CashPayments FROM Payment GROUP BY PaymentMethod;
+
+
